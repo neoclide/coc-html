@@ -22,7 +22,7 @@ In your vim/neovim, run command:
 ## Configuration options
 
 * `html.enable` set to `false` to disable html language server.
-* `html.trace.server` trace LSP traffic in output channel.
+* `html.trace.server` set trace level of LSP traffic.
 * `html.execArgv` add `execArgv` to `child_process.spawn`
 * `html.filetypes` default `[ "html", "handlebars", "razor" ]`.
 * `html.format.enable` enable format support.
