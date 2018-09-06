@@ -1,0 +1,185 @@
+{
+  "name": "coc-html",
+  "version": "1.0.0",
+  "description": "Html extension for coc",
+  "main": "lib/index.js",
+  "publisher": "chemzqm",
+  "engines": {
+    "coc": "^0.0.15"
+  },
+  "scripts": {
+    "clean": "rimraf lib",
+    "build": "tsc -p tsconfig.json",
+    "prepare": "yarn clean && yarn build"
+  },
+  "contributes": {
+    "configuration": {
+      "type": "object",
+      "title": "HTML",
+      "properties": {
+        "html.enable": {
+          "type": "boolean",
+          "default": true
+        },
+        "html.execArgv": {
+          "type": "array",
+          "default": [
+            "--nolazy",
+            "--inspect-brk=6045"
+          ],
+          "items": {
+            "type": "string"
+          }
+        },
+        "html.trace.server": {
+          "type": "string",
+          "default": "off",
+          "enum": [
+            "off",
+            "messages",
+            "verbose"
+          ]
+        },
+        "html.filetypes": {
+          "type": "array",
+          "default": [
+            "html",
+            "handlebars",
+            "razor"
+          ],
+          "items": {
+            "type": "string"
+          }
+        },
+        "html.format.enable": {
+          "type": "boolean",
+          "scope": "window",
+          "default": true,
+          "description": "Enable/disable default HTML formatter"
+        },
+        "html.format.wrapLineLength": {
+          "type": "integer",
+          "scope": "resource",
+          "default": 120,
+          "description": "Maximum amount of characters per line (0 = disable)."
+        },
+        "html.format.unformatted": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "scope": "resource",
+          "default": "wbr",
+          "description": "List of tags, comma separated, that shouldn't be reformatted. 'null' defaults to all tags listed at https://www.w3.org/TR/html5/dom.html#phrasing-content."
+        },
+        "html.format.contentUnformatted": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "scope": "resource",
+          "default": "pre,code,textarea",
+          "description": "List of tags, comma separated, where the content shouldn't be reformatted. 'null' defaults to the 'pre' tag."
+        },
+        "html.format.indentInnerHtml": {
+          "type": "boolean",
+          "scope": "resource",
+          "default": false
+        },
+        "html.format.preserveNewLines": {
+          "type": "boolean",
+          "scope": "resource",
+          "default": true
+        },
+        "html.format.maxPreserveNewLines": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "scope": "resource",
+          "default": null,
+          "description": "List of tags, comma separated, that should have an extra newline before them. 'null'"
+        },
+        "html.format.indentHandlebars": {
+          "type": "boolean",
+          "scope": "resource",
+          "default": false
+        },
+        "html.format.endWithNewline": {
+          "type": "boolean",
+          "scope": "resource",
+          "default": false
+        },
+        "html.format.extraLiners": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "scope": "resource",
+          "default": "head, body, /html",
+          "description": "List of tags, comma separated, that should have an extra newline before them."
+        },
+        "html.format.wrapAttributes": {
+          "type": "string",
+          "scope": "resource",
+          "default": "auto",
+          "enum": [
+            "auto",
+            "force",
+            "force-aligned",
+            "force-expand-multiline"
+          ]
+        },
+        "html.suggest.angular1": {
+          "type": "boolean",
+          "scope": "resource",
+          "default": true,
+          "description": "Configures if the built-in HTML language support suggests Angular V1 tags and properties."
+        },
+        "html.suggest.ionic": {
+          "type": "boolean",
+          "scope": "resource",
+          "default": true,
+          "description": "Configures if the built-in HTML language support suggests Ionic tags, properties and values."
+        },
+        "html.suggest.html5": {
+          "type": "boolean",
+          "scope": "resource",
+          "default": true,
+          "description": "Configures if the built-in HTML language support suggests HTML5 tags, properties and values."
+        },
+        "html.validate.scripts": {
+          "type": "boolean",
+          "scope": "resource",
+          "default": true,
+          "description": "Configures if the built-in HTML language support validates embedded scripts."
+        },
+        "html.validate.styles": {
+          "type": "boolean",
+          "scope": "resource",
+          "default": true,
+          "description": "Configures if the built-in HTML language support validates embedded styles."
+        }
+      }
+    }
+  },
+  "author": "chemzqm@gmail.com",
+  "license": "MIT",
+  "devDependencies": {
+    "@chemzqm/tsconfig": "^0.0.3",
+    "@chemzqm/tslint-config": "^1.0.17",
+    "@types/node": "^10.9.4",
+    "coc.nvim": "^0.0.15",
+    "rimraf": "^2.6.2",
+    "tslint": "^5.11.0"
+  },
+  "dependencies": {
+    "tslib": "^1.9.3",
+    "typescript": "^3.0.3",
+    "vscode-css-languageservice": "^3.0.10",
+    "vscode-html-languageservice": "^2.1.7",
+    "vscode-languageserver": "^5.0.3",
+    "vscode-languageserver-types": "^3.12.0",
+    "vscode-uri": "^1.0.6"
+  }
+}
