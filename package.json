@@ -12,6 +12,11 @@
     "build": "tsc -p tsconfig.json",
     "prepare": "yarn clean && yarn build"
   },
+  "activationEvents": [
+    "onLanguage:html",
+    "onLanguage:handlebars",
+    "onLanguage:razor"
+  ],
   "contributes": {
     "configuration": {
       "type": "object",
