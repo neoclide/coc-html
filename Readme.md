@@ -2,6 +2,8 @@
 
 Html language server extension for [coc.nvim](https://github.com/neoclide/coc.nvim).
 
+Code changed from html extension of [VSCode](https://github.com/Microsoft/vscode/tree/master/extensions/html-language-features)
+
 ## Install
 
 In your vim/neovim, run command:
@@ -12,22 +14,22 @@ In your vim/neovim, run command:
 
 ## Features
 
-* Completion provider
-* Formatting
-* Document Symbols & Highlights
-* Document Links
-* CSS mode
-* Javascript mode
+- Completion provider
+- Formatting
+- Document Symbols & Highlights
+- Document Links
+- CSS mode
+- Javascript mode
 
 ## Configuration options
 
-* `html.enable` set to `false` to disable html language server.
-* `html.trace.server` set trace level of LSP traffic.
-* `html.execArgv` add `execArgv` to `child_process.spawn`
-* `html.filetypes` default `[ "html", "handlebars", "razor" ]`.
-* `html.format.enable` enable format support.
-* `html.validate.scripts` validate for embedded scripts.
-* `html.validate.styles` validate for embedded styles.
+- `html.enable` set to `false` to disable html language server.
+- `html.trace.server` set trace level of LSP traffic.
+- `html.execArgv` add `execArgv` to `child_process.spawn`
+- `html.filetypes` default `[ "html", "handlebars", "razor" ]`.
+- `html.format.enable` enable format support.
+- `html.validate.scripts` validate for embedded scripts.
+- `html.validate.styles` validate for embedded styles.
 
 Trigger completion in `coc-settings.json` for complete list.
 
