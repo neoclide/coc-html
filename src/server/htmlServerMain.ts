@@ -214,7 +214,15 @@ function triggerValidation(textDocument: TextDocument): void {
 function isValidationEnabled(languageId: string, settings: Settings = globalSettings) {
 	const validationSettings = settings && settings.html && settings.html.validate;
 	if (validationSettings) {
-		return languageId === 'css' && validationSettings.styles !== false || languageId === 'javascript' && validationSettings.scripts !== false;
+    if (languageId === 'css') {
+      return validationSettings.styles !== false
+    }
+    if (languageId === 'javascript') {
+      return validationSettings.scripts !== false;
+    }
+    if (languageId === 'html') {
+      return validationSettings.html !== false;
+    }
 	}
 	return true;
 }

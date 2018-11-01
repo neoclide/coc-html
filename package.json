@@ -161,6 +161,12 @@
           "scope": "resource",
           "default": true,
           "description": "Configures if the built-in HTML language support validates embedded styles."
+        },
+        "html.validate.html": {
+          "type": "boolean",
+          "scope": "resource",
+          "default": true,
+          "description": "Configures if the built-in HTML language support validates HTML."
         }
       }
     }
@@ -189,3 +195,4 @@
     "vscode-uri": "^1.0.6"
   }
 }
+
