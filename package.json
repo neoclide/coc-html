@@ -7,6 +7,10 @@
   "engines": {
     "coc": "^0.0.15"
   },
+  "keywords": [
+    "coc.nvim",
+    "languageserver"
+  ],
   "scripts": {
     "clean": "rimraf lib",
     "build": "tsc -p tsconfig.json",
