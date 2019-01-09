@@ -26,6 +26,14 @@
       "type": "object",
       "title": "HTML",
       "properties": {
+        "html.experimental.custom.tags": {
+          "type": "array",
+          "description": "A list of JSON file paths that define custom tags."
+        },
+        "html.experimental.custom.attributes": {
+          "type": "array",
+          "description": "A list of JSON file paths that define custom attributes."
+        },
         "html.enable": {
           "type": "boolean",
           "default": true
@@ -183,19 +191,19 @@
   },
   "devDependencies": {
     "@chemzqm/tsconfig": "^0.0.3",
-    "@chemzqm/tslint-config": "^1.0.17",
-    "@types/node": "^10.9.4",
-    "coc.nvim": "^0.0.15",
-    "rimraf": "^2.6.2",
-    "tslint": "^5.11.0"
+    "@chemzqm/tslint-config": "^1.0.18",
+    "@types/node": "^10.12.18",
+    "coc.nvim": "^0.0.46",
+    "rimraf": "^2.6.3",
+    "tslint": "^5.12.0"
   },
   "dependencies": {
     "tslib": "^1.9.3",
-    "typescript": "^3.0.3",
-    "vscode-css-languageservice": "^3.0.10",
-    "vscode-html-languageservice": "^2.1.7",
-    "vscode-languageserver": "^5.0.3",
-    "vscode-languageserver-types": "^3.12.0",
+    "typescript": "^3.2.2",
+    "vscode-css-languageservice": "^3.0.13-next.3",
+    "vscode-html-languageservice": "^2.1.11-next.2",
+    "vscode-languageserver": "^5.2.1",
+    "vscode-languageserver-types": "^3.14.0",
     "vscode-uri": "^1.0.6"
   }
 }

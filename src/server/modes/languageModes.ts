@@ -2,9 +2,8 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
 
-import { getLanguageService as getHTMLLanguageService, DocumentContext } from 'vscode-html-languageservice';
+import { getLanguageService as getHTMLLanguageService, DocumentContext, ITagSet, IAttributeSet } from 'vscode-html-languageservice';
 import {
 	CompletionItem, Location, SignatureHelp, Definition, TextEdit, TextDocument, Diagnostic, DocumentLink, Range,
 	Hover, DocumentHighlight, CompletionList, Position, FormattingOptions, SymbolInformation, FoldingRange
@@ -46,7 +45,7 @@ export interface LanguageMode {
 	findDocumentColors?: (document: TextDocument) => ColorInformation[];
 	getColorPresentations?: (document: TextDocument, color: Color, range: Range) => ColorPresentation[];
 	doAutoClose?: (document: TextDocument, position: Position) => string | null;
-	getFoldingRanges?: (document: TextDocument, range: Range) => FoldingRange[];
+	getFoldingRanges?: (document: TextDocument) => FoldingRange[];
 	onDocumentRemoved(document: TextDocument): void;
 	dispose(): void;
 }
@@ -66,9 +65,13 @@ export interface LanguageModeRange extends Range {
 	attributeValue?: boolean;
 }
 
-export function getLanguageModes(supportedLanguages: { [languageId: string]: boolean; }, workspace: Workspace): LanguageModes {
+export function getLanguageModes(supportedLanguages: { [languageId: string]: boolean; }, workspace: Workspace, customTags?: ITagSet, customAttributes?: IAttributeSet): LanguageModes {
 
-	var htmlLanguageService = getHTMLLanguageService();
+	const htmlLanguageService = getHTMLLanguageService({
+		customTags,
+		customAttributes
+	});
+
 	let documentRegions = getLanguageModelCache<HTMLDocumentRegions>(10, 60, document => getDocumentRegions(htmlLanguageService, document));
 
 	let modelCaches: LanguageModelCache<any>[] = [];
@@ -80,7 +83,7 @@ export function getLanguageModes(supportedLanguages: { [languageId: string]: boo
 		modes['css'] = getCSSMode(documentRegions, workspace);
 	}
 	if (supportedLanguages['javascript']) {
-		modes['javascript'] = getJavaScriptMode(documentRegions, workspace);
+		modes['javascript'] = getJavaScriptMode(documentRegions);
 	}
 	return {
 		getModeAtPosition(document: TextDocument, position: Position): LanguageMode | undefined {
@@ -88,7 +91,7 @@ export function getLanguageModes(supportedLanguages: { [languageId: string]: boo
 			if (languageId) {
 				return modes[languageId];
 			}
-			return void 0;
+			return undefined;
 		},
 		getModesInRange(document: TextDocument, range: Range): LanguageModeRange[] {
 			return documentRegions.get(document).getLanguageRanges(range).map(r => {

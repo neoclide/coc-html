@@ -2,7 +2,6 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
 
 import {
 	createConnection, IConnection, TextDocuments, InitializeParams, InitializeResult, RequestType,
@@ -12,6 +11,7 @@ import {
 } from 'vscode-languageserver';
 import { TextDocument, Diagnostic, DocumentLink, SymbolInformation } from 'vscode-languageserver-types';
 import { getLanguageModes, LanguageModes, Settings } from './modes/languageModes';
+import * as fs from 'fs';
 
 import { format } from './modes/formatting';
 import { pushAll } from './utils/arrays';
@@ -20,6 +20,8 @@ import uri from 'vscode-uri';
 import { formatError, runSafe, runSafeAsync } from './utils/runner';
 
 import { getFoldingRanges } from './modes/htmlFolding';
+import { parseTagSet, parseAttributes } from './utils/tagDefinitions';
+import { ITagSet, IAttributeSet } from 'vscode-html-languageservice';
 
 namespace TagCloseRequest {
 	export const type: RequestType<TextDocumentPositionParams, string | null, any, any> = new RequestType('html/tag');
@@ -73,7 +75,7 @@ function getDocumentSettings(textDocument: TextDocument, needsDocumentSettings: 
 		}
 		return promise;
 	}
-	return Promise.resolve(void 0);
+	return Promise.resolve(undefined);
 }
 
 // After the server has started the client sends an initialize request. The server receives
@@ -89,11 +91,47 @@ connection.onInitialize((params: InitializeParams): InitializeResult => {
 		}
 	}
 
+	const tagPaths: string[] = params.initializationOptions.tagPaths;
+	const attributePaths: string[] = params.initializationOptions.attributePaths;
+	const htmlTags: ITagSet = {};
+	const htmlAttributes: IAttributeSet = {};
+
+	if (tagPaths) {
+		tagPaths.forEach(path => {
+			try {
+				if (fs.existsSync(path)) {
+					const tagSet = parseTagSet(fs.readFileSync(path, 'utf-8'));
+					for (let tag in tagSet) {
+						htmlTags[tag] = tagSet[tag];
+					}
+				}
+			} catch (err) {
+				console.log(`Failed to laod tag from ${path}`);
+			}
+		});
+	}
+  if (attributePaths) {
+		attributePaths.forEach(path => {
+			try {
+				if (fs.existsSync(path)) {
+					const attributeSet = parseAttributes(fs.readFileSync(path, 'utf-8'));
+					for (let ga in attributeSet) {
+						htmlAttributes[ga] = attributeSet[ga];
+					}
+				}
+			} catch (err) {
+				console.log(`Failed to load attributes from ${path}`);
+			}
+		});
+	}
+
 	const workspace = {
 		get settings() { return globalSettings; },
 		get folders() { return workspaceFolders; }
 	};
-	languageModes = getLanguageModes(initializationOptions ? initializationOptions.embeddedLanguages : { css: true, javascript: true }, workspace);
+
+	languageModes = getLanguageModes(initializationOptions ? initializationOptions.embeddedLanguages : { css: true, javascript: true }, workspace, htmlTags, htmlAttributes);
+
 	documents.onDidClose(e => {
 		languageModes.onDocumentRemoved(e.document);
 	});
@@ -136,7 +174,7 @@ connection.onInitialize((params: InitializeParams): InitializeResult => {
 	return { capabilities };
 });
 
-connection.onInitialized((p) => {
+connection.onInitialized(() => {
 	if (workspaceFoldersSupport) {
 		connection.client.register(DidChangeWorkspaceFoldersNotification.type);
 
@@ -214,15 +252,7 @@ function triggerValidation(textDocument: TextDocument): void {
 function isValidationEnabled(languageId: string, settings: Settings = globalSettings) {
 	const validationSettings = settings && settings.html && settings.html.validate;
 	if (validationSettings) {
-    if (languageId === 'css') {
-      return validationSettings.styles !== false
-    }
-    if (languageId === 'javascript') {
-      return validationSettings.scripts !== false;
-    }
-    if (languageId === 'html') {
-      return validationSettings.html !== false;
-    }
+		return languageId === 'css' && validationSettings.styles !== false || languageId === 'javascript' && validationSettings.scripts !== false;
 	}
 	return true;
 }
