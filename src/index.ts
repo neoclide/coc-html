@@ -1,28 +1,15 @@
 import { ExtensionContext, LanguageClient, ServerOptions, workspace, services, TransportKind, LanguageClientOptions } from 'coc.nvim'
 import path from 'path'
+import { getCustomDataPathsInAllWorkspaces, getCustomDataPathsFromAllExtensions } from './customData'
 
 export async function activate(context: ExtensionContext): Promise<void> {
   let { subscriptions } = context
-  const config = workspace.getConfiguration().get('html', {}) as any
+  const config = workspace.getConfiguration().get<any>('html', {}) as any
   const enable = config.enable
   if (enable === false) return
   const file = context.asAbsolutePath('lib/server/htmlServerMain.js')
   const selector = config.filetypes || ['html', 'handlebars', 'razor']
   const embeddedLanguages = { css: true, javascript: true }
-
-  let tagPaths: string[] = workspace.getConfiguration('html').get('experimental.custom.tags', [])
-  let attributePaths: string[] = workspace.getConfiguration('html').get('experimental.custom.attributes', [])
-
-  if (tagPaths && tagPaths.length > 0) {
-    try {
-      const workspaceRoot = workspace.rootPath
-      tagPaths = tagPaths.map(d => {
-        return path.resolve(workspaceRoot, d)
-      })
-    } catch (err) {
-      tagPaths = []
-    }
-  }
 
   let serverOptions: ServerOptions = {
     module: file,
@@ -34,6 +21,11 @@ export async function activate(context: ExtensionContext): Promise<void> {
     }
   }
 
+  let dataPaths = [
+    ...getCustomDataPathsInAllWorkspaces(),
+    ...getCustomDataPathsFromAllExtensions()
+  ]
+
   let clientOptions: LanguageClientOptions = {
     documentSelector: selector,
     synchronize: {
@@ -42,9 +34,7 @@ export async function activate(context: ExtensionContext): Promise<void> {
     outputChannelName: 'html',
     initializationOptions: {
       embeddedLanguages,
-      tagPaths,
-      attributePaths
-
+      dataPaths
     }
   }
 
