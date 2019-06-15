@@ -1,6 +1,7 @@
-import { ExtensionContext, LanguageClient, ServerOptions, workspace, services, TransportKind, LanguageClientOptions } from 'coc.nvim'
+import { ExtensionContext, languages, LanguageClient, ServerOptions, workspace, services, TransportKind, LanguageClientOptions } from 'coc.nvim'
 import path from 'path'
 import { getCustomDataPathsInAllWorkspaces, getCustomDataPathsFromAllExtensions } from './customData'
+import { TextDocument, SelectionRange, Position } from 'vscode-languageserver-types'
 
 export async function activate(context: ExtensionContext): Promise<void> {
   let { subscriptions } = context
@@ -8,7 +9,7 @@ export async function activate(context: ExtensionContext): Promise<void> {
   const enable = config.enable
   if (enable === false) return
   const file = context.asAbsolutePath('lib/server/htmlServerMain.js')
-  const selector = config.filetypes || ['html', 'handlebars', 'razor']
+  const selector = config.filetypes || ['html', 'handlebars']
   const embeddedLanguages = { css: true, javascript: true }
 
   let serverOptions: ServerOptions = {
@@ -39,6 +40,18 @@ export async function activate(context: ExtensionContext): Promise<void> {
   }
 
   let client = new LanguageClient('html', 'HTML language server', serverOptions, clientOptions)
+  client.onReady().then(() => {
+    selector.forEach(selector => {
+      context.subscriptions.push(languages.registerSelectionRangeProvider(selector, {
+        async provideSelectionRanges(document: TextDocument, positions: Position[]): Promise<SelectionRange[]> {
+          const textDocument = { uri: document.uri }
+          return await Promise.resolve(client.sendRequest<SelectionRange[]>('$/textDocument/selectionRanges', { textDocument, positions }))
+        }
+      }))
+    })
+  }, _e => {
+    // noop
+  })
 
   subscriptions.push(
     services.registLanguageClient(client)

@@ -26,7 +26,7 @@ In your vim/neovim, run command:
 - `html.enable` set to `false` to disable html language server.
 - `html.trace.server` set trace level of LSP traffic.
 - `html.execArgv` add `execArgv` to `child_process.spawn`
-- `html.filetypes` default `[ "html", "handlebars", "razor" ]`.
+- `html.filetypes` default `[ "html", "handlebars" ]`.
 - `html.format.enable` enable format support.
 - `html.validate.scripts` validate for embedded scripts.
 - `html.validate.styles` validate for embedded styles.

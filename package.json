@@ -18,8 +18,7 @@
   },
   "activationEvents": [
     "onLanguage:html",
-    "onLanguage:handlebars",
-    "onLanguage:razor"
+    "onLanguage:handlebars"
   ],
   "contributes": {
     "configuration": {
@@ -58,8 +57,7 @@
           "type": "array",
           "default": [
             "html",
-            "handlebars",
-            "razor"
+            "handlebars"
           ],
           "items": {
             "type": "string"
