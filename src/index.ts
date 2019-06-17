@@ -8,7 +8,7 @@ export async function activate(context: ExtensionContext): Promise<void> {
   const config = workspace.getConfiguration().get<any>('html', {}) as any
   const enable = config.enable
   if (enable === false) return
-  const file = context.asAbsolutePath('lib/server/htmlServerMain.js')
+  const file = context.asAbsolutePath('lib/server.js')
   const selector = config.filetypes || ['html', 'handlebars']
   const embeddedLanguages = { css: true, javascript: true }
 
