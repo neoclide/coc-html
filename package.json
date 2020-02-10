@@ -18,6 +18,7 @@
   },
   "activationEvents": [
     "onLanguage:html",
+    "onLanguage:htmldjango",
     "onLanguage:handlebars"
   ],
   "contributes": {
@@ -57,7 +58,8 @@
           "type": "array",
           "default": [
             "html",
-            "handlebars"
+            "handlebars",
+            "htmldjango"
           ],
           "items": {
             "type": "string"

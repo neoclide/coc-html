@@ -1,7 +1,6 @@
-import { ExtensionContext, languages, LanguageClient, ServerOptions, workspace, services, TransportKind, LanguageClientOptions } from 'coc.nvim'
-import path from 'path'
-import { getCustomDataPathsInAllWorkspaces, getCustomDataPathsFromAllExtensions } from './customData'
-import { TextDocument, SelectionRange, Position } from 'vscode-languageserver-types'
+import { ExtensionContext, LanguageClient, LanguageClientOptions, languages, ServerOptions, services, TransportKind, workspace } from 'coc.nvim'
+import { Position, SelectionRange, TextDocument } from 'vscode-languageserver-types'
+import { getCustomDataPathsFromAllExtensions, getCustomDataPathsInAllWorkspaces } from './customData'
 
 export async function activate(context: ExtensionContext): Promise<void> {
   let { subscriptions } = context
@@ -9,7 +8,7 @@ export async function activate(context: ExtensionContext): Promise<void> {
   const enable = config.enable
   if (enable === false) return
   const file = context.asAbsolutePath('lib/server.js')
-  const selector = config.filetypes || ['html', 'handlebars']
+  const selector = config.filetypes || ['html', 'handlebars', 'htmldjango']
   const embeddedLanguages = { css: true, javascript: true }
 
   let serverOptions: ServerOptions = {
