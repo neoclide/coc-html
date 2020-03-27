@@ -1,6 +1,13 @@
 import { ExtensionContext, LanguageClient, LanguageClientOptions, languages, ServerOptions, services, TransportKind, workspace } from 'coc.nvim'
-import { Position, SelectionRange, TextDocument } from 'vscode-languageserver-types'
+import { Position, SelectionRange } from 'vscode-languageserver-types'
 import { getCustomDataPathsFromAllExtensions, getCustomDataPathsInAllWorkspaces } from './customData'
+import { TextDocumentPositionParams, TextDocument, RequestType } from 'vscode-languageserver-protocol'
+
+import { activateTagClosing } from './tagClosing'
+
+namespace TagCloseRequest {
+	export const type: RequestType<TextDocumentPositionParams, string, any, any> = new RequestType('html/tag')
+}
 
 export async function activate(context: ExtensionContext): Promise<void> {
   let { subscriptions } = context
@@ -48,6 +55,19 @@ export async function activate(context: ExtensionContext): Promise<void> {
         }
       }))
     })
+
+    const tagRequestor = (document: TextDocument, position: Position): Thenable<any> => {
+      const param: TextDocumentPositionParams = {
+        textDocument: {
+          uri: document.uri,
+        },
+        position,
+      }
+      return client.sendRequest(TagCloseRequest.type, param)
+    }
+    context.subscriptions.push(
+      activateTagClosing(tagRequestor, selector, 'html.autoClosingTags')
+    )
   }, _e => {
     // noop
   })

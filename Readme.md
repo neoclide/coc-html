@@ -30,6 +30,7 @@ In your vim/neovim, run command:
 - `html.format.enable` enable format support.
 - `html.validate.scripts` validate for embedded scripts.
 - `html.validate.styles` validate for embedded styles.
+- `html.autoClosingTags` Enable/disable autoClosing of HTML tags.
 
 Trigger completion in `coc-settings.json` for complete list.
 
