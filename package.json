@@ -179,6 +179,11 @@
           "scope": "resource",
           "default": true,
           "description": "Configures if the built-in HTML language support validates HTML."
+        },
+        "html.autoClosingTags": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable/disable autoClosing of HTML tags."
         }
       }
     }
