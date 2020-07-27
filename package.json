@@ -19,7 +19,8 @@
   "activationEvents": [
     "onLanguage:html",
     "onLanguage:htmldjango",
-    "onLanguage:handlebars"
+    "onLanguage:handlebars",
+    "onLanguage:blade"
   ],
   "contributes": {
     "configuration": {
@@ -59,7 +60,8 @@
           "default": [
             "html",
             "handlebars",
-            "htmldjango"
+            "htmldjango",
+            "blade"
           ],
           "items": {
             "type": "string"

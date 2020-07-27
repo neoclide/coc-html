@@ -15,7 +15,7 @@ export async function activate(context: ExtensionContext): Promise<void> {
   const enable = config.enable
   if (enable === false) return
   const file = context.asAbsolutePath('lib/server.js')
-  const selector = config.filetypes || ['html', 'handlebars', 'htmldjango']
+  const selector = config.filetypes || ['html', 'handlebars', 'htmldjango', 'blade']
   const embeddedLanguages = { css: true, javascript: true }
 
   let serverOptions: ServerOptions = {
