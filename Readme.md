@@ -47,7 +47,7 @@ In your vim/neovim, run command:
 
 - *html.filetypes*:
 
-	 default: `["html","handlebars","htmldjango"]`
+	 default: `["html","handlebars","htmldjango","blade"]`
 
 - *html.format.enable*:
 
