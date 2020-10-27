@@ -3,7 +3,7 @@ const path = require('path')
 module.exports = {
   entry: {
     index: './src/index.ts',
-    server: './server/htmlServerMain.ts'
+    server: './server/node/htmlServerMain.ts'
   },
   target: 'node',
   mode: 'none',

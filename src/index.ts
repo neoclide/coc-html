@@ -63,7 +63,7 @@ export async function activate(context: ExtensionContext): Promise<void> {
         },
         position,
       }
-      return client.sendRequest(TagCloseRequest.type, param)
+      return client.sendRequest(TagCloseRequest.type as any, param)
     }
     context.subscriptions.push(
       activateTagClosing(tagRequestor, selector, 'html.autoClosingTags')
