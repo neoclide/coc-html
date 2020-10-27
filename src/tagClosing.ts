@@ -74,11 +74,14 @@ export function activateTagClosing(
       clearTimeout(timeout)
     }
     let lastChange = changes[changes.length - 1]
-    let lastCharacter = lastChange.text[lastChange.text.length - 1]
-    if (lastChange.rangeLength > 0 || lastCharacter !== '>' && lastCharacter !== '/') {
+    if (!Range.is(lastChange['range']) || !emptyRange(lastChange['range'])) {
       return
     }
-    let rangeStart = lastChange.range.start
+    let lastCharacter = lastChange.text[lastChange.text.length - 1]
+    if (lastCharacter !== '>' && lastCharacter !== '/') {
+      return
+    }
+    let rangeStart = lastChange['range'].start
     let version = document.version
     timeout = setTimeout(async () => {
       let position = Position.create(rangeStart.line, rangeStart.character + lastChange.text.length)
@@ -106,4 +109,8 @@ export function activateTagClosing(
     })
     disposables = []
   })
+}
+
+function emptyRange(range: Range): boolean {
+  return range.start.line == range.end.line && range.start.character == range.end.character
 }
