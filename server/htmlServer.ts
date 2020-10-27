@@ -202,8 +202,8 @@ export function startServer(connection: Connection, runtime: RuntimeEnvironment)
 		if (dynamicFormatterRegistration) {
 			const enableFormatter = globalSettings && globalSettings.html && globalSettings.html.format && globalSettings.html.format.enable;
 			if (enableFormatter) {
-				if (!formatterRegistration) {
-					const documentSelector: DocumentSelector = [{ language: 'html' }, { language: 'handlebars' }];
+        if (!formatterRegistration) {
+          const documentSelector: DocumentSelector = [{ language: 'html' }, { language: 'handlebars' }, { language: 'htmldjango' }, { language: 'blade' }];
 					formatterRegistration = connection.client.register(DocumentRangeFormattingRequest.type, { documentSelector });
 				}
 			} else if (formatterRegistration) {
