@@ -198,13 +198,13 @@
   },
   "devDependencies": {
     "@types/node": "^12.19.0",
-    "coc.nvim": "^0.0.79",
+    "coc.nvim": "^0.0.79-next.6",
     "rimraf": "^3.0.2",
     "ts-loader": "^8.0.7",
-    "vscode-languageserver-types": "3.15.1",
     "vscode-css-languageservice": "^4.3.5",
     "vscode-html-languageservice": "^3.1.4",
     "vscode-languageserver": "7.0.0-next.3",
+    "vscode-languageserver-types": "3.15.1",
     "vscode-uri": "^2.1.2",
     "webpack": "^5.2.0",
     "webpack-cli": "^4.1.0"
