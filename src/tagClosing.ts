@@ -67,14 +67,14 @@ export function activateTagClosing(
       return
     }
     let activeDocument = doc.textDocument
-    if (document !== activeDocument || changes.length === 0) {
+    if (document.uri !== activeDocument.uri || changes.length === 0) {
       return
     }
     if (typeof timeout !== 'undefined') {
       clearTimeout(timeout)
     }
     let lastChange = changes[changes.length - 1]
-    if (!Range.is(lastChange['range']) || !emptyRange(lastChange['range'])) {
+    if (!Range.is(lastChange['range']) || !lastChange.text) {
       return
     }
     let lastCharacter = lastChange.text[lastChange.text.length - 1]
@@ -92,7 +92,7 @@ export function activateTagClosing(
             return
           }
           let activeDocument = doc.textDocument
-          if (document === activeDocument && activeDocument.version === version) {
+          if (document.uri === activeDocument.uri && activeDocument.version === version) {
             snippetManager.insertSnippet(text, false, Range.create(position, position))
               .catch(() => {
                 // noop
