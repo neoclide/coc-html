@@ -1,6 +1,6 @@
 {
   "name": "coc-html",
-  "version": "1.3.2",
+  "version": "1.4.0",
   "description": "Html extension for coc",
   "main": "lib/index.js",
   "publisher": "chemzqm",
