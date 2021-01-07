@@ -6,7 +6,7 @@ import { TextDocumentPositionParams, TextDocument, RequestType } from 'vscode-la
 import { activateTagClosing } from './tagClosing'
 
 namespace TagCloseRequest {
-	export const type: RequestType<TextDocumentPositionParams, string, any, any> = new RequestType('html/tag')
+	export const type: RequestType<TextDocumentPositionParams, string, any> = new RequestType('html/tag')
 }
 
 export async function activate(context: ExtensionContext): Promise<void> {

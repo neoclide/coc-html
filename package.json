@@ -5,7 +5,7 @@
   "main": "lib/index.js",
   "publisher": "chemzqm",
   "engines": {
-    "coc": "^0.0.15"
+    "coc": "^0.0.80"
   },
   "keywords": [
     "coc.nvim",
@@ -197,13 +197,13 @@
     "url": "git+https://github.com/neoclide/coc-html.git"
   },
   "devDependencies": {
-    "@types/node": "^12.19.0",
-    "coc.nvim": "^0.0.79-next.6",
+    "@types/node": "^12.12.0",
+    "coc.nvim": "^0.0.80",
     "rimraf": "^3.0.2",
     "ts-loader": "^8.0.7",
-    "vscode-css-languageservice": "^4.3.5",
-    "vscode-html-languageservice": "^3.1.4",
-    "vscode-languageserver": "7.0.0-next.3",
+    "vscode-css-languageservice": "^5.0.0",
+    "vscode-html-languageservice": "^4.0.0",
+    "vscode-languageserver": "^7.0.0",
     "vscode-languageserver-types": "3.15.1",
     "vscode-uri": "^2.1.2",
     "webpack": "^5.2.0",

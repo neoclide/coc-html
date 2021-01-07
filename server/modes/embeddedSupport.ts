@@ -3,7 +3,8 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { TextDocument, Position, LanguageService, TokenType, Range } from './languageModes';
+import { LanguageService, TextDocument, TokenType } from './languageModes';
+import {Position, Range} from 'vscode-languageserver'
 
 export interface LanguageRange extends Range {
 	languageId: string | undefined;
