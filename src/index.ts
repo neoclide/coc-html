@@ -1,4 +1,4 @@
-import { ExtensionContext, LanguageClient, LanguageClientOptions, languages, ServerOptions, services, TransportKind, workspace } from 'coc.nvim'
+import { DocumentSelector, ExtensionContext, LanguageClient, LanguageClientOptions, languages, ServerOptions, services, TransportKind, workspace } from 'coc.nvim'
 import { Position, SelectionRange } from 'vscode-languageserver-types'
 import { getCustomDataPathsFromAllExtensions, getCustomDataPathsInAllWorkspaces } from './customData'
 import { TextDocumentPositionParams, TextDocument, RequestType } from 'vscode-languageserver-protocol'
@@ -6,16 +6,16 @@ import { TextDocumentPositionParams, TextDocument, RequestType } from 'vscode-la
 import { activateTagClosing } from './tagClosing'
 
 namespace TagCloseRequest {
-	export const type: RequestType<TextDocumentPositionParams, string, any> = new RequestType('html/tag')
+  export const type: RequestType<TextDocumentPositionParams, string, any> = new RequestType('html/tag')
 }
 
-export async function activate(context: ExtensionContext): Promise<void> {
+function realActivate(context: ExtensionContext, filetypes:string[]) {
   let { subscriptions } = context
   const config = workspace.getConfiguration().get<any>('html', {}) as any
-  const enable = config.enable
-  if (enable === false) return
   const file = context.asAbsolutePath('lib/server.js')
-  const selector = config.filetypes || ['html', 'handlebars', 'htmldjango', 'blade']
+  const selector: DocumentSelector = filetypes.map(id => {
+    return {language: id}
+  })
   const embeddedLanguages = { css: true, javascript: true }
 
   let serverOptions: ServerOptions = {
@@ -47,14 +47,12 @@ export async function activate(context: ExtensionContext): Promise<void> {
 
   let client = new LanguageClient('html', 'HTML language server', serverOptions, clientOptions)
   client.onReady().then(() => {
-    selector.forEach(selector => {
-      context.subscriptions.push(languages.registerSelectionRangeProvider(selector, {
-        async provideSelectionRanges(document: TextDocument, positions: Position[]): Promise<SelectionRange[]> {
-          const textDocument = { uri: document.uri }
-          return await Promise.resolve(client.sendRequest<SelectionRange[]>('$/textDocument/selectionRanges', { textDocument, positions }))
-        }
-      }))
-    })
+    context.subscriptions.push(languages.registerSelectionRangeProvider(selector, {
+      async provideSelectionRanges(document: TextDocument, positions: Position[]): Promise<SelectionRange[]> {
+        const textDocument = { uri: document.uri }
+        return await Promise.resolve(client.sendRequest<SelectionRange[]>('$/textDocument/selectionRanges', { textDocument, positions }))
+      }
+    }))
 
     const tagRequestor = (document: TextDocument, position: Position): Thenable<any> => {
       const param: TextDocumentPositionParams = {
@@ -66,7 +64,7 @@ export async function activate(context: ExtensionContext): Promise<void> {
       return client.sendRequest(TagCloseRequest.type as any, param)
     }
     context.subscriptions.push(
-      activateTagClosing(tagRequestor, selector, 'html.autoClosingTags')
+      activateTagClosing(tagRequestor, filetypes, 'html.autoClosingTags')
     )
   }, _e => {
     // noop
@@ -75,4 +73,26 @@ export async function activate(context: ExtensionContext): Promise<void> {
   subscriptions.push(
     services.registLanguageClient(client)
   )
+}
+
+export async function activate(context: ExtensionContext): Promise<void> {
+  const config = workspace.getConfiguration('html')
+  const enable = config.get<boolean>('enable', true)
+  if (enable === false) return
+  const filetypes = config.get<string[]>('filetypes', ['html', 'handlebars', 'htmldjango', 'blade'])
+  let activated = false
+  for (let doc of workspace.textDocuments) {
+    if (filetypes.includes(doc.languageId) && !activated) {
+      activated = true
+      realActivate(context, filetypes)
+    }
+  }
+  if (!activated) {
+    let disposable = workspace.onDidOpenTextDocument(e => {
+      if (activated || !filetypes.includes(e.languageId)) return
+      disposable.dispose()
+      activated = true
+      realActivate(context, filetypes)
+    }, null, context.subscriptions)
+  }
 }

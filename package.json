@@ -17,10 +17,7 @@
     "prepare": "webpack"
   },
   "activationEvents": [
-    "onLanguage:html",
-    "onLanguage:htmldjango",
-    "onLanguage:handlebars",
-    "onLanguage:blade"
+    "*"
   ],
   "contributes": {
     "configuration": {
