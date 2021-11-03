@@ -24,14 +24,6 @@
       "type": "object",
       "title": "HTML",
       "properties": {
-        "html.experimental.custom.tags": {
-          "type": "array",
-          "description": "A list of JSON file paths that define custom tags."
-        },
-        "html.experimental.custom.attributes": {
-          "type": "array",
-          "description": "A list of JSON file paths that define custom attributes."
-        },
         "html.enable": {
           "type": "boolean",
           "default": true
@@ -42,15 +34,6 @@
           "items": {
             "type": "string"
           }
-        },
-        "html.trace.server": {
-          "type": "string",
-          "default": "off",
-          "enum": [
-            "off",
-            "messages",
-            "verbose"
-          ]
         },
         "html.filetypes": {
           "type": "array",
@@ -64,6 +47,22 @@
             "type": "string"
           }
         },
+        "html.completion.attributeDefaultValue": {
+          "type": "string",
+          "scope": "resource",
+          "enum": [
+            "doublequotes",
+            "singlequotes",
+            "empty"
+          ],
+          "enumDescriptions": [
+            "Attribute value is set to \"\"",
+            "Attribute value is set to ''",
+            "Attribute value is not set"
+          ],
+          "default": "doublequotes",
+          "description": "Controls the default value for attributes when completion is accepted"
+        },
         "html.format.enable": {
           "type": "boolean",
           "scope": "window",
@@ -74,7 +73,7 @@
           "type": "integer",
           "scope": "resource",
           "default": 120,
-          "description": "Maximum amount of characters per line (0 = disable)."
+          "description": "Maximum amount of characters per line (0 = disable)"
         },
         "html.format.unformatted": {
           "type": [
@@ -83,7 +82,7 @@
           ],
           "scope": "resource",
           "default": "wbr",
-          "description": "List of tags, comma separated, that shouldn't be reformatted. 'null' defaults to all tags listed at https://www.w3.org/TR/html5/dom.html#phrasing-content."
+          "description": "List of tags, comma separated, that shouldn't be reformatted. 'null' defaults to all tags listed at https://www.w3.org/TR/html5/dom.html#phrasing-content"
         },
         "html.format.contentUnformatted": {
           "type": [
@@ -92,17 +91,19 @@
           ],
           "scope": "resource",
           "default": "pre,code,textarea",
-          "description": "List of tags, comma separated, where the content shouldn't be reformatted. 'null' defaults to the 'pre' tag."
+          "description": "List of tags, comma separated, where the content shouldn't be reformatted. 'null' defaults to the 'pre' tag"
         },
         "html.format.indentInnerHtml": {
           "type": "boolean",
           "scope": "resource",
-          "default": false
+          "default": false,
+          "markdownDescription": "Indent `<head>` and `<body>` sections"
         },
         "html.format.preserveNewLines": {
           "type": "boolean",
           "scope": "resource",
-          "default": true
+          "default": true,
+          "description": "Controls whether existing line breaks before elements should be preserved. Only works before elements, not inside tags or for text"
         },
         "html.format.maxPreserveNewLines": {
           "type": [
@@ -111,17 +112,19 @@
           ],
           "scope": "resource",
           "default": null,
-          "description": "List of tags, comma separated, that should have an extra newline before them. 'null'"
+          "markdownDescription": "Maximum number of line breaks to be preserved in one chunk. Use `null` for unlimited"
         },
         "html.format.indentHandlebars": {
           "type": "boolean",
           "scope": "resource",
-          "default": false
+          "default": false,
+          "markdownDescription": "Format and indent `{{#foo}}` and `{{/foo}}`"
         },
         "html.format.endWithNewline": {
           "type": "boolean",
           "scope": "resource",
-          "default": false
+          "default": false,
+          "description": "End with a newline"
         },
         "html.format.extraLiners": {
           "type": [
@@ -130,7 +133,7 @@
           ],
           "scope": "resource",
           "default": "head, body, /html",
-          "description": "List of tags, comma separated, that should have an extra newline before them."
+          "markdownDescription": "List of tags, comma separated, that should have an extra newline before them. `null` defaults to `\"head, body, /html\"`"
         },
         "html.format.wrapAttributes": {
           "type": "string",
@@ -140,49 +143,113 @@
             "auto",
             "force",
             "force-aligned",
-            "force-expand-multiline"
-          ]
+            "force-expand-multiline",
+            "aligned-multiple",
+            "preserve",
+            "preserve-aligned"
+          ],
+          "enumDescriptions": [
+            "Wrap attributes only when line length is exceeded",
+            "Wrap each attribute except first",
+            "Wrap each attribute except first and keep aligned",
+            "Wrap each attribute",
+            "Wrap when line length is exceeded, align attributes vertically",
+            "Preserve wrapping of attributes",
+            "Preserve wrapping of attributes but align"
+          ],
+          "description": "Wrap attributes"
         },
-        "html.suggest.angular1": {
+        "html.format.wrapAttributesIndentSize": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "scope": "resource",
+          "default": null,
+          "markdownDescription": "Alignment size when using 'force aligned' and 'aligned multiple' in `#html.format.wrapAttributes#` or `null` to use the default indent size"
+        },
+        "html.format.templating": {
           "type": "boolean",
           "scope": "resource",
-          "default": true,
-          "description": "Configures if the built-in HTML language support suggests Angular V1 tags and properties."
+          "default": false,
+          "description": "Honor django, erb, handlebars and php templating language tags"
         },
-        "html.suggest.ionic": {
-          "type": "boolean",
+        "html.format.unformattedContentDelimiter": {
+          "type": "string",
           "scope": "resource",
-          "default": true,
-          "description": "Configures if the built-in HTML language support suggests Ionic tags, properties and values."
+          "default": "",
+          "markdownDescription": "Keep text content together between this string"
         },
         "html.suggest.html5": {
           "type": "boolean",
           "scope": "resource",
           "default": true,
-          "description": "Configures if the built-in HTML language support suggests HTML5 tags, properties and values."
+          "description": "Configures if the built-in HTML language support suggests HTML5 tags, properties and values"
+        },
+        "html.suggest.angular1": {
+          "type": "boolean",
+          "scope": "resource",
+          "default": true,
+          "description": "Configures if the built-in HTML language support suggests Angular V1 tags and properties"
+        },
+        "html.suggest.ionic": {
+          "type": "boolean",
+          "scope": "resource",
+          "default": true,
+          "description": "Configures if the built-in HTML language support suggests Ionic tags, properties and values"
         },
         "html.validate.scripts": {
           "type": "boolean",
           "scope": "resource",
           "default": true,
-          "description": "Configures if the built-in HTML language support validates embedded scripts."
+          "description": "Configures if the built-in HTML language support validates embedded scripts"
         },
         "html.validate.styles": {
           "type": "boolean",
           "scope": "resource",
           "default": true,
-          "description": "Configures if the built-in HTML language support validates embedded styles."
+          "description": "Configures if the built-in HTML language support validates embedded styles"
         },
         "html.validate.html": {
           "type": "boolean",
           "scope": "resource",
           "default": true,
-          "description": "Configures if the built-in HTML language support validates HTML."
+          "description": "Configures if the built-in HTML language support validates HTML"
         },
         "html.autoClosingTags": {
           "type": "boolean",
           "default": false,
-          "description": "Enable/disable autoClosing of HTML tags."
+          "description": "Enable/disable autoClosing of HTML tags"
+        },
+        "html.hover.documentation": {
+          "type": "boolean",
+          "scope": "resource",
+          "default": true,
+          "description": "Show tag and attribute documentation in hover"
+        },
+        "html.hover.references": {
+          "type": "boolean",
+          "scope": "resource",
+          "default": true,
+          "description": "Show references to MDN in hover"
+        },
+        "html.experimental.custom.tags": {
+          "type": "array",
+          "description": "A list of JSON file paths that define custom tags"
+        },
+        "html.experimental.custom.attributes": {
+          "type": "array",
+          "description": "A list of JSON file paths that define custom attributes"
+        },
+        "html.trace.server": {
+          "type": "string",
+          "enum": [
+            "off",
+            "messages",
+            "verbose"
+          ],
+          "default": "off",
+          "description": "Traces the communication between coc.nvim and the HTML language server"
         }
       }
     }
