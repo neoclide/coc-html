@@ -3,14 +3,14 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { join, dirname } from 'path';
+import { join, basename, dirname } from 'path';
 import { readFileSync } from 'fs';
 
 const contents: { [name: string]: string } = {};
 
-const extensionFolder = dirname(__dirname)
-const TYPESCRIPT_LIB_SOURCE = join(extensionFolder, 'node_modules/typescript/lib');
-const JQUERY_PATH = join(extensionFolder, 'jquery.d.ts');
+const serverFolder = basename(__dirname) === 'dist' ? dirname(__dirname) : dirname(dirname(__dirname));
+const TYPESCRIPT_LIB_SOURCE = join(serverFolder, '../../node_modules/typescript/lib');
+const JQUERY_PATH = join(serverFolder, 'lib/jquery.d.ts');
 
 export function loadLibrary(name: string) {
 	let content = contents[name];
