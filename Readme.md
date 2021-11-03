@@ -150,7 +150,7 @@ In your vim/neovim, run command:
 
   A list of JSON file paths that define custom attributes.
 
-- *html.trace.server*:
+- **html.trace.server**:
 
   Traces the communication between coc.nvim and the HTML language server, default: `"off"`
 
