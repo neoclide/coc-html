@@ -110,14 +110,6 @@ In your vim/neovim, run command:
 
   Configures if the built-in HTML language support suggests HTML5 tags, properties and values.,  default: `true`
 
-- **html.suggest.angular1**:
-
-  Configures if the built-in HTML language support suggests Angular V1 tags and properties.,  default: `true`
-
-- **html.suggest.ionic**:
-
-  Configures if the built-in HTML language support suggests Ionic tags, properties and values.,  default: `true`
-
 - **html.validate.scripts**:
 
   Configures if the built-in HTML language support validates embedded scripts.,  default: `true`
@@ -141,14 +133,6 @@ In your vim/neovim, run command:
 - **html.hover.references**:
 
   Show references to MDN in hover, default: `true`
-
-- **html.experimental.custom.tags**:
-
-  A list of JSON file paths that define custom tags.
-
-- **html.experimental.custom.attributes**:
-
-  A list of JSON file paths that define custom attributes.
 
 - **html.trace.server**:
 

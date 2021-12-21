@@ -186,18 +186,6 @@
           "default": true,
           "description": "Configures if the built-in HTML language support suggests HTML5 tags, properties and values"
         },
-        "html.suggest.angular1": {
-          "type": "boolean",
-          "scope": "resource",
-          "default": true,
-          "description": "Configures if the built-in HTML language support suggests Angular V1 tags and properties"
-        },
-        "html.suggest.ionic": {
-          "type": "boolean",
-          "scope": "resource",
-          "default": true,
-          "description": "Configures if the built-in HTML language support suggests Ionic tags, properties and values"
-        },
         "html.validate.scripts": {
           "type": "boolean",
           "scope": "resource",
@@ -232,14 +220,6 @@
           "scope": "resource",
           "default": true,
           "description": "Show references to MDN in hover"
-        },
-        "html.experimental.custom.tags": {
-          "type": "array",
-          "description": "A list of JSON file paths that define custom tags"
-        },
-        "html.experimental.custom.attributes": {
-          "type": "array",
-          "description": "A list of JSON file paths that define custom attributes"
         },
         "html.trace.server": {
           "type": "string",
