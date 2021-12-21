@@ -30,105 +30,131 @@ In your vim/neovim, run command:
 
 ## Configuration options
 
-- *html.experimental.custom.tags*:
+- **html.enable**:
 
-	A list of JSON file paths that define custom tags.
+  default: `true`
 
-- *html.experimental.custom.attributes*:
+- **html.execArgv**:
 
-	A list of JSON file paths that define custom attributes.
+  default: `[]`
 
-- *html.enable*:
+- **html.filetypes**:
 
-	 default: `true`
+  default: `["html","handlebars","htmldjango","blade"]`
 
-- *html.execArgv*:
+- **html.completion.attributeDefaultValue**:
 
-	 default: `[]`
+  Controls the default value for attributes when completion is accepted, default: `"doublequotes"`
 
-- *html.trace.server*:
+  Valid options: ["doublequotes", "singlequotes", "empty"]
 
-	 default: `"off"`
+- **html.format.enable**:
 
-	Valid options: ["off","messages","verbose"]
+  Enable/disable default HTML formatter,  default: `true`
 
-- *html.filetypes*:
+- **html.format.wrapLineLength**:
 
-	 default: `["html","handlebars","htmldjango","blade"]`
+  Maximum amount of characters per line (0 = disable).,  default: `120`
 
-- *html.format.enable*:
+- **html.format.unformatted**:
 
-	Enable/disable default HTML formatter,  default: `true`
+  List of tags, comma separated, that shouldn't be reformatted. 'null' defaults to all tags listed at https://www.w3.org/TR/html5/dom.html#phrasing-content.,  default: `"wbr"`
 
-- *html.format.wrapLineLength*:
+- **html.format.contentUnformatted**:
 
-	Maximum amount of characters per line (0 = disable).,  default: `120`
+  List of tags, comma separated, where the content shouldn't be reformatted. 'null' defaults to the 'pre' tag.,  default: `"pre,code,textarea"`
 
-- *html.format.unformatted*:
+- **html.format.indentInnerHtml**:
 
-	List of tags, comma separated, that shouldn't be reformatted. 'null' defaults to all tags listed at https://www.w3.org/TR/html5/dom.html#phrasing-content.,  default: `"wbr"`
+  Indent `<head>` and `<body>` sections, default: `false`
 
-- *html.format.contentUnformatted*:
+- **html.format.preserveNewLines**:
 
-	List of tags, comma separated, where the content shouldn't be reformatted. 'null' defaults to the 'pre' tag.,  default: `"pre,code,textarea"`
+  Controls whether existing line breaks before elements should be preserved. Only works before elements, not inside tags or for text, default: `true`
 
-- *html.format.indentInnerHtml*:
+- **html.format.maxPreserveNewLines**:
 
-	 default: `false`
+  List of tags, comma separated, that should have an extra newline before them. 'null',  default: `null`
 
-- *html.format.preserveNewLines*:
+- **html.format.indentHandlebars**:
 
-	 default: `true`
+  Format and indent `{{#foo}}` and `{{/foo}}`, default: `false`
 
-- *html.format.maxPreserveNewLines*:
+- **html.format.endWithNewline**:
 
-	List of tags, comma separated, that should have an extra newline before them. 'null',  default: `null`
+  End with a newline, default: `false`
 
-- *html.format.indentHandlebars*:
+- **html.format.extraLiners**:
 
-	 default: `false`
+  List of tags, comma separated, that should have an extra newline before them. `null` defaults to `\"head, body, /html\"`, default: `"head, body, /html"`
 
-- *html.format.endWithNewline*:
+- **html.format.wrapAttributes**:
 
-	 default: `false`
+  Wrap attributes, default: `"auto"`
 
-- *html.format.extraLiners*:
+  Valid options: ["auto", "force", "force-aligned", "force-expand-multiline", "aligned-multiple", "preserve", "preserve-aligned"]
 
-	List of tags, comma separated, that should have an extra newline before them.,  default: `"head, body, /html"`
+- **html.format.wrapAttributesIndentSize**:
 
-- *html.format.wrapAttributes*:
+  Alignment size when using 'force aligned' and 'aligned multiple' in `#html.format.wrapAttributes#` or `null` to use the default indent size, default: `null`
 
-	 default: `"auto"`
+- **html.format.templating**:
 
-	Valid options: ["auto","force","force-aligned","force-expand-multiline"]
+  Honor django, erb, handlebars and php templating language tags, default: `false`
 
-- *html.suggest.angular1*:
+- **html.format.unformattedContentDelimiter**:
 
-	Configures if the built-in HTML language support suggests Angular V1 tags and properties.,  default: `true`
+  Keep text content together between this string, default: `""`
 
-- *html.suggest.ionic*:
+- **html.suggest.html5**:
 
-	Configures if the built-in HTML language support suggests Ionic tags, properties and values.,  default: `true`
+  Configures if the built-in HTML language support suggests HTML5 tags, properties and values.,  default: `true`
 
-- *html.suggest.html5*:
+- **html.suggest.angular1**:
 
-	Configures if the built-in HTML language support suggests HTML5 tags, properties and values.,  default: `true`
+  Configures if the built-in HTML language support suggests Angular V1 tags and properties.,  default: `true`
 
-- *html.validate.scripts*:
+- **html.suggest.ionic**:
 
-	Configures if the built-in HTML language support validates embedded scripts.,  default: `true`
+  Configures if the built-in HTML language support suggests Ionic tags, properties and values.,  default: `true`
 
-- *html.validate.styles*:
+- **html.validate.scripts**:
 
-	Configures if the built-in HTML language support validates embedded styles.,  default: `true`
+  Configures if the built-in HTML language support validates embedded scripts.,  default: `true`
 
-- *html.validate.html*:
+- **html.validate.styles**:
 
-	Configures if the built-in HTML language support validates HTML.,  default: `true`
+  Configures if the built-in HTML language support validates embedded styles.,  default: `true`
 
-- *html.autoClosingTags*:
+- **html.validate.html**:
 
-	Enable/disable autoClosing of HTML tags.,  default: `false`
+  Configures if the built-in HTML language support validates HTML.,  default: `true`
+
+- **html.autoClosingTags**:
+
+  Enable/disable autoClosing of HTML tags.,  default: `false`
+
+- **html.hover.documentation**:
+
+  Show tag and attribute documentation in hover, default: `true`
+
+- **html.hover.references**:
+
+  Show references to MDN in hover, default: `true`
+
+- **html.experimental.custom.tags**:
+
+  A list of JSON file paths that define custom tags.
+
+- **html.experimental.custom.attributes**:
+
+  A list of JSON file paths that define custom attributes.
+
+- **html.trace.server**:
+
+  Traces the communication between coc.nvim and the HTML language server, default: `"off"`
+
+  Valid options: ["off","messages","verbose"]
 
 Trigger completion in `coc-settings.json` for complete list.
 
