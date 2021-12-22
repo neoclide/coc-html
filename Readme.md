@@ -42,6 +42,12 @@ In your vim/neovim, run command:
 
   default: `["html","handlebars","htmldjango","blade"]`
 
+- **html.customData**:
+
+  A list of relative file paths pointing to JSON files following the [custom data format](https://github.com/microsoft/vscode-html-languageservice/blob/master/docs/customData.md).\n\ncoc-html loads custom data on startup to enhance its HTML support for the custom HTML tags, attributes and attribute values you specify in the JSON files.\n\nThe file paths are relative to workspace and only workspace folder settings are considered.
+
+  default: `[]`
+
 - **html.completion.attributeDefaultValue**:
 
   Controls the default value for attributes when completion is accepted, default: `"doublequotes"`

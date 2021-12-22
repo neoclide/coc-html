@@ -3,65 +3,148 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import * as path from 'path'
-import { Uri, workspace, extensions } from 'coc.nvim'
+import { workspace, extensions, Uri, Emitter, Disposable, fetch } from 'coc.nvim'
+import fs from 'fs'
+import { Utils } from 'vscode-uri'
+import {TextDecoder, promisify} from 'util'
 
-interface ExperimentalConfig {
-  experimental?: {
-    customData?: string[];
-  }
-}
+export function getCustomDataSource(toDispose: Disposable[]) {
+  let localExtensionUris = new Set<string>()
+  let externalExtensionUris = new Set<string>()
+  const workspaceUris = new Set<string>()
 
-export function getCustomDataPathsInAllWorkspaces(): string[] {
-  const dataPaths: string[] = []
-  const workspaceFolders = workspace.workspaceFolders
+  collectInWorkspaces(workspaceUris)
+  collectInExtensions(localExtensionUris, externalExtensionUris)
 
-  if (!workspaceFolders) {
-    return dataPaths
-  }
+  const onChange = new Emitter<void>()
+  toDispose.push(
+    extensions.onDidActiveExtension(_ => {
+      const newLocalExtensionUris = new Set<string>()
+      const newExternalExtensionUris = new Set<string>()
+      collectInExtensions(newLocalExtensionUris, newExternalExtensionUris)
+      if (
+        hasChanges(newLocalExtensionUris, localExtensionUris) ||
+        hasChanges(newExternalExtensionUris, externalExtensionUris)
+      ) {
+        localExtensionUris = newLocalExtensionUris
+        externalExtensionUris = newExternalExtensionUris
+        onChange.fire()
+      }
+    })
+  )
+  toDispose.push(
+    workspace.onDidChangeConfiguration(e => {
+      if (e.affectsConfiguration('html.customData')) {
+        workspaceUris.clear()
+        collectInWorkspaces(workspaceUris)
+        onChange.fire()
+      }
+    })
+  )
 
-  workspaceFolders.forEach(wf => {
-    const allHtmlConfig = workspace.getConfiguration(undefined, wf.uri)
-    const wfHtmlConfig = allHtmlConfig.inspect<ExperimentalConfig>('html') as any
+  toDispose.push(
+    workspace.onDidChangeTextDocument(e => {
+      const path = e.textDocument.uri
+      if (externalExtensionUris.has(path) || workspaceUris.has(path)) {
+        onChange.fire()
+      }
+    })
+  )
 
-    if (
-      wfHtmlConfig &&
-      wfHtmlConfig.workspaceFolderValue &&
-      wfHtmlConfig.workspaceFolderValue.experimental &&
-      wfHtmlConfig.workspaceFolderValue.experimental.customData
-    ) {
-      const customData = wfHtmlConfig.workspaceFolderValue.experimental.customData
-      if (Array.isArray(customData)) {
-        customData.forEach(t => {
-          if (typeof t === 'string') {
-            dataPaths.push(path.resolve(Uri.parse(wf.uri).fsPath, t))
-          }
+  return {
+    get uris() {
+      return [...localExtensionUris].concat(
+        [...externalExtensionUris],
+        [...workspaceUris]
+      )
+    },
+    get onDidChange() {
+      return onChange.event
+    },
+    getContent(uriString: string): Thenable<string> {
+      const uri = Uri.parse(uriString)
+      if (uri.scheme === 'file') {
+        return promisify(fs.readFile)(uri.fsPath).then(buffer => {
+          return new TextDecoder().decode(buffer)
         })
       }
-    }
-  })
-
-  return dataPaths
-}
-
-export function getCustomDataPathsFromAllExtensions(): string[] {
-  const dataPaths: string[] = []
-
-  for (const extension of extensions.all) {
-    const contributes = extension.packageJSON && extension.packageJSON.contributes
-
-    if (
-      contributes &&
-      contributes.html &&
-      contributes.html.experimental.customData &&
-      Array.isArray(contributes.html.experimental.customData)
-    ) {
-      const relativePaths: string[] = contributes.html.experimental.customData
-      relativePaths.forEach(rp => {
-        dataPaths.push(path.resolve(extension.extensionPath, rp))
+      return fetch(uriString, { timeout: 5000, buffer: true }).then(res => {
+        return new TextDecoder().decode(res as Buffer)
       })
     }
   }
+}
 
-  return dataPaths
+function hasChanges(s1: Set<string>, s2: Set<string>) {
+  if (s1.size !== s2.size) {
+    return true
+  }
+  for (const uri of s1) {
+    if (!s2.has(uri)) {
+      return true
+    }
+  }
+  return false
+}
+
+function isURI(uriOrPath: string) {
+  return /^(?<scheme>\w[\w\d+.-]*):/.test(uriOrPath)
+}
+
+function collectInWorkspaces(workspaceUris: Set<string>): void {
+  const workspaceFolders = workspace.workspaceFolders
+  if (!workspaceFolders) return
+
+  const collect = (uriOrPaths: string[] | undefined, rootUri: string) => {
+    if (Array.isArray(uriOrPaths)) {
+      for (const uriOrPath of uriOrPaths) {
+        if (typeof uriOrPath === 'string') {
+          if (!isURI(uriOrPath)) {
+            // path in the workspace
+            workspaceUris.add(
+              Utils.resolvePath(Uri.parse(rootUri), uriOrPath).toString()
+            )
+          } else {
+            // external uri
+            workspaceUris.add(uriOrPath)
+          }
+        }
+      }
+    }
+  }
+
+  for (let i = 0; i < workspaceFolders.length; i++) {
+    const folderUri = workspaceFolders[i].uri
+    const allHtmlConfig = workspace.getConfiguration('html', folderUri)
+    const customDataInspect = allHtmlConfig.inspect<string[]>('customData')
+    if (customDataInspect) {
+      collect(customDataInspect.workspaceValue, folderUri)
+      if (i === 0) {
+        collect(customDataInspect.globalValue, folderUri)
+      }
+    }
+  }
+}
+
+function collectInExtensions(
+  localExtensionUris: Set<string>,
+  externalUris: Set<string>
+): void {
+  for (const extension of extensions.all) {
+    const customData = extension.packageJSON?.contributes?.html?.customData
+    if (Array.isArray(customData)) {
+      for (const uriOrPath of customData) {
+        if (!isURI(uriOrPath)) {
+          let extensionUri = Uri.file(extension.extensionPath)
+          // relative path in an extension
+          localExtensionUris.add(
+            Utils.joinPath(extensionUri, uriOrPath).toString()
+          )
+        } else {
+          // external uri
+          externalUris.add(uriOrPath)
+        }
+      }
+    }
+  }
 }

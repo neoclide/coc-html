@@ -1,9 +1,16 @@
-import { DocumentSelector, ExtensionContext, LanguageClient, LanguageClientOptions, languages, ServerOptions, services, TransportKind, workspace } from 'coc.nvim'
+import { DocumentSelector, NotificationType, TextDocumentPositionParams, RequestType, ExtensionContext, LanguageClient, LanguageClientOptions, languages, ServerOptions, services, TransportKind, workspace } from 'coc.nvim'
 import { Position, SelectionRange } from 'vscode-languageserver-types'
-import { getCustomDataPathsFromAllExtensions, getCustomDataPathsInAllWorkspaces } from './customData'
-import { TextDocumentPositionParams, TextDocument, RequestType } from 'vscode-languageserver-protocol'
+import {getCustomDataSource} from './customData'
 
 import { activateTagClosing } from './tagClosing'
+
+namespace CustomDataChangedNotification {
+	export const type: NotificationType<string[]> = new NotificationType('html/customDataChanged');
+}
+
+namespace CustomDataContent {
+	export const type: RequestType<string, string, any> = new RequestType('html/customDataContent');
+}
 
 namespace TagCloseRequest {
   export const type: RequestType<TextDocumentPositionParams, string, any> = new RequestType('html/tag')
@@ -28,11 +35,6 @@ function realActivate(context: ExtensionContext, filetypes:string[]) {
     }
   }
 
-  let dataPaths = [
-    ...getCustomDataPathsInAllWorkspaces(),
-    ...getCustomDataPathsFromAllExtensions()
-  ]
-
   let clientOptions: LanguageClientOptions = {
     documentSelector: selector,
     synchronize: {
@@ -41,20 +43,28 @@ function realActivate(context: ExtensionContext, filetypes:string[]) {
     outputChannelName: 'html',
     initializationOptions: {
       embeddedLanguages,
-      dataPaths
+      handledSchemas: ['file']
     }
   }
 
   let client = new LanguageClient('html', 'HTML language server', serverOptions, clientOptions)
   client.onReady().then(() => {
+    const customDataSource = getCustomDataSource(context.subscriptions)
+
+		client.sendNotification(CustomDataChangedNotification.type, customDataSource.uris)
+		customDataSource.onDidChange(() => {
+			client.sendNotification(CustomDataChangedNotification.type, customDataSource.uris)
+		});
+		client.onRequest(CustomDataContent.type, customDataSource.getContent)
+
     context.subscriptions.push(languages.registerSelectionRangeProvider(selector, {
-      async provideSelectionRanges(document: TextDocument, positions: Position[]): Promise<SelectionRange[]> {
+      async provideSelectionRanges(document, positions: Position[]): Promise<SelectionRange[]> {
         const textDocument = { uri: document.uri }
         return await Promise.resolve(client.sendRequest<SelectionRange[]>('$/textDocument/selectionRanges', { textDocument, positions }))
       }
     }))
 
-    const tagRequestor = (document: TextDocument, position: Position): Thenable<any> => {
+    const tagRequestor = (document, position: Position): Thenable<any> => {
       const param: TextDocumentPositionParams = {
         textDocument: {
           uri: document.uri,

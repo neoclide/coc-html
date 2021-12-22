@@ -47,6 +47,15 @@
             "type": "string"
           }
         },
+        "html.customData": {
+          "type": "array",
+          "markdownDescription": "A list of relative file paths pointing to JSON files following the [custom data format](https://github.com/microsoft/vscode-html-languageservice/blob/master/docs/customData.md).\n\ncoc-html loads custom data on startup to enhance its HTML support for the custom HTML tags, attributes and attribute values you specify in the JSON files.\n\nThe file paths are relative to workspace and only workspace folder settings are considered.",
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "scope": "resource"
+        },
         "html.completion.attributeDefaultValue": {
           "type": "string",
           "scope": "resource",
@@ -259,7 +268,7 @@
     "vscode-html-languageservice": "^4.2.1",
     "vscode-languageserver": "^7.0.0",
     "vscode-languageserver-types": "3.15.1",
-    "vscode-uri": "^2.1.2",
+    "vscode-uri": "^3.0.3",
     "webpack": "^5.2.0",
     "webpack-cli": "^4.1.0"
   },
