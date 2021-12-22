@@ -1,27 +1,40 @@
-import { DocumentSelector, NotificationType, TextDocumentPositionParams, RequestType, ExtensionContext, LanguageClient, LanguageClientOptions, languages, ServerOptions, services, TransportKind, workspace } from 'coc.nvim'
+import { DocumentSelector, RequestType0, Range as LspRange, TextDocumentIdentifier, NotificationType, TextDocumentPositionParams, RequestType, ExtensionContext, LanguageClient, LanguageClientOptions, languages, ServerOptions, services, TransportKind, workspace, DocumentRangeSemanticTokensProvider, DocumentSemanticTokensProvider } from 'coc.nvim'
 import { Position, SelectionRange } from 'vscode-languageserver-types'
-import {getCustomDataSource} from './customData'
-
+import { getCustomDataSource } from './customData'
 import { activateTagClosing } from './tagClosing'
 
+// experimental: semantic tokens
+interface SemanticTokenParams {
+  textDocument: TextDocumentIdentifier
+  ranges?: LspRange[]
+}
+
+namespace SemanticTokenLegendRequest {
+  export const type: RequestType0<{ types: string[]; modifiers: string[] } | null, any> = new RequestType0('html/semanticTokenLegend')
+}
+
+namespace SemanticTokenRequest {
+  export const type: RequestType<SemanticTokenParams, number[] | null, any> = new RequestType('html/semanticTokens')
+}
+
 namespace CustomDataChangedNotification {
-	export const type: NotificationType<string[]> = new NotificationType('html/customDataChanged');
+  export const type: NotificationType<string[]> = new NotificationType('html/customDataChanged')
 }
 
 namespace CustomDataContent {
-	export const type: RequestType<string, string, any> = new RequestType('html/customDataContent');
+  export const type: RequestType<string, string, any> = new RequestType('html/customDataContent')
 }
 
 namespace TagCloseRequest {
   export const type: RequestType<TextDocumentPositionParams, string, any> = new RequestType('html/tag')
 }
 
-function realActivate(context: ExtensionContext, filetypes:string[]) {
+function realActivate(context: ExtensionContext, filetypes: string[]) {
   let { subscriptions } = context
   const config = workspace.getConfiguration().get<any>('html', {}) as any
   const file = context.asAbsolutePath('lib/server.js')
   const selector: DocumentSelector = filetypes.map(id => {
-    return {language: id}
+    return { language: id }
   })
   const embeddedLanguages = { css: true, javascript: true }
 
@@ -51,11 +64,11 @@ function realActivate(context: ExtensionContext, filetypes:string[]) {
   client.onReady().then(() => {
     const customDataSource = getCustomDataSource(context.subscriptions)
 
-		client.sendNotification(CustomDataChangedNotification.type, customDataSource.uris)
-		customDataSource.onDidChange(() => {
-			client.sendNotification(CustomDataChangedNotification.type, customDataSource.uris)
-		});
-		client.onRequest(CustomDataContent.type, customDataSource.getContent)
+    client.sendNotification(CustomDataChangedNotification.type, customDataSource.uris)
+    customDataSource.onDidChange(() => {
+      client.sendNotification(CustomDataChangedNotification.type, customDataSource.uris)
+    })
+    client.onRequest(CustomDataContent.type, customDataSource.getContent)
 
     context.subscriptions.push(languages.registerSelectionRangeProvider(selector, {
       async provideSelectionRanges(document, positions: Position[]): Promise<SelectionRange[]> {
@@ -76,6 +89,37 @@ function realActivate(context: ExtensionContext, filetypes:string[]) {
     context.subscriptions.push(
       activateTagClosing(tagRequestor, filetypes, 'html.autoClosingTags')
     )
+
+    if (typeof languages.registerDocumentSemanticTokensProvider === 'function') {
+      client.sendRequest(SemanticTokenLegendRequest.type).then(legend => {
+        if (legend) {
+          const provider: DocumentSemanticTokensProvider & DocumentRangeSemanticTokensProvider  = {
+            provideDocumentSemanticTokens(doc) {
+              const params: SemanticTokenParams = {
+                textDocument: { uri: doc.uri }
+              }
+              return client.sendRequest(SemanticTokenRequest.type, params).then(data => {
+                return data && {data}
+              })
+            },
+            provideDocumentRangeSemanticTokens(doc, range) {
+              const params: SemanticTokenParams = {
+                textDocument: {
+                  uri: doc.uri
+                },
+                ranges: [range]
+              }
+              return client.sendRequest(SemanticTokenRequest.type, params).then(data => {
+                return data && {data}
+              })
+            }
+          }
+          let lspLegend ={tokenTypes: legend.types, tokenModifiers: legend.modifiers}
+          context.subscriptions.push(languages.registerDocumentSemanticTokensProvider(selector, provider, lspLegend))
+          context.subscriptions.push(languages.registerDocumentRangeSemanticTokensProvider(selector, provider, lspLegend))
+        }
+      })
+    }
   }, _e => {
     // noop
   })
