@@ -1,6 +1,4 @@
 src
 tsconfig.json
-tslint.json
 *.map
 server
-webpack.config.js
