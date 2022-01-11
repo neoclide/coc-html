@@ -1,12 +1,27 @@
-import { DocumentSelector, RequestType0, Range as LspRange, TextDocumentIdentifier, NotificationType, TextDocumentPositionParams, RequestType, ExtensionContext, LanguageClient, LanguageClientOptions, languages, ServerOptions, services, TransportKind, workspace, DocumentRangeSemanticTokensProvider, DocumentSemanticTokensProvider } from 'coc.nvim'
+import { DocumentRangeSemanticTokensProvider, DocumentSelector, DocumentSemanticTokensProvider, ExtensionContext, LanguageClient, LanguageClientOptions, languages, NotificationType, Range as LspRange, RequestType, RequestType0, ServerOptions, services, TextDocument, TextDocumentIdentifier, TransportKind, workspace } from 'coc.nvim'
 import { Position, SelectionRange } from 'vscode-languageserver-types'
+import { activateAutoInsertion } from './autoInsertion'
 import { getCustomDataSource } from './customData'
-import { activateTagClosing } from './tagClosing'
 
 // experimental: semantic tokens
 interface SemanticTokenParams {
   textDocument: TextDocumentIdentifier
   ranges?: LspRange[]
+}
+
+interface AutoInsertParams {
+  /**
+   * The auto insert kind
+   */
+  kind: 'autoQuote' | 'autoClose'
+  /**
+   * The text document.
+   */
+  textDocument: TextDocumentIdentifier
+  /**
+   * The position inside the text document.
+   */
+  position: Position
 }
 
 namespace SemanticTokenLegendRequest {
@@ -25,8 +40,8 @@ namespace CustomDataContent {
   export const type: RequestType<string, string, any> = new RequestType('html/customDataContent')
 }
 
-namespace TagCloseRequest {
-  export const type: RequestType<TextDocumentPositionParams, string, any> = new RequestType('html/tag')
+namespace AutoInsertRequest {
+  export const type: RequestType<AutoInsertParams, string, any> = new RequestType('html/autoInsert')
 }
 
 function realActivate(context: ExtensionContext, filetypes: string[]) {
@@ -77,29 +92,28 @@ function realActivate(context: ExtensionContext, filetypes: string[]) {
       }
     }))
 
-    const tagRequestor = (document, position: Position): Thenable<any> => {
-      const param: TextDocumentPositionParams = {
+    const insertRequestor = (kind: 'autoQuote' | 'autoClose', document: TextDocument, position: Position): Promise<string> => {
+      let param: AutoInsertParams = {
+        kind,
         textDocument: {
-          uri: document.uri,
+          uri: document.uri
         },
-        position,
+        position
       }
-      return client.sendRequest(TagCloseRequest.type as any, param)
+      return client.sendRequest(AutoInsertRequest.type, param)
     }
-    context.subscriptions.push(
-      activateTagClosing(tagRequestor, filetypes, 'html.autoClosingTags')
-    )
+    activateAutoInsertion(insertRequestor, { html: true, handlebars: true }, context.subscriptions)
 
     if (typeof languages.registerDocumentSemanticTokensProvider === 'function') {
       client.sendRequest(SemanticTokenLegendRequest.type).then(legend => {
         if (legend) {
-          const provider: DocumentSemanticTokensProvider & DocumentRangeSemanticTokensProvider  = {
+          const provider: DocumentSemanticTokensProvider & DocumentRangeSemanticTokensProvider = {
             provideDocumentSemanticTokens(doc) {
               const params: SemanticTokenParams = {
                 textDocument: { uri: doc.uri }
               }
               return client.sendRequest(SemanticTokenRequest.type, params).then(data => {
-                return data && {data}
+                return data && { data }
               })
             },
             provideDocumentRangeSemanticTokens(doc, range) {
@@ -110,11 +124,11 @@ function realActivate(context: ExtensionContext, filetypes: string[]) {
                 ranges: [range]
               }
               return client.sendRequest(SemanticTokenRequest.type, params).then(data => {
-                return data && {data}
+                return data && { data }
               })
             }
           }
-          let lspLegend ={tokenTypes: legend.types, tokenModifiers: legend.modifiers}
+          let lspLegend = { tokenTypes: legend.types, tokenModifiers: legend.modifiers }
           context.subscriptions.push(languages.registerDocumentSemanticTokensProvider(selector, provider, lspLegend))
           context.subscriptions.push(languages.registerDocumentRangeSemanticTokensProvider(selector, provider, lspLegend))
         }

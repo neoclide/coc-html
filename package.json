@@ -215,8 +215,14 @@
         },
         "html.autoClosingTags": {
           "type": "boolean",
-          "default": false,
+          "default": true,
           "description": "Enable/disable autoClosing of HTML tags"
+        },
+        "html.autoCreateQuotes": {
+          "type": "boolean",
+          "scope": "resource",
+          "default": true,
+          "description": "Enable/disable auto creation of quotes for HTML attribute assignment."
         },
         "html.hover.documentation": {
           "type": "boolean",

@@ -130,7 +130,12 @@ In your vim/neovim, run command:
 
 - **html.autoClosingTags**:
 
-  Enable/disable autoClosing of HTML tags.,  default: `false`
+  Enable/disable autoClosing of HTML tags, default: `true`
+
+- **html.autoCreateQuotes**:
+
+  Enable/disable auto creation of quotes for HTML attribute assignment, default:
+  `true`
 
 - **html.hover.documentation**:
 
