@@ -153,6 +153,15 @@ In your vim/neovim, run command:
 
 Trigger completion in `coc-settings.json` for complete list.
 
+## F.A.Q
+
+Q: I can't select the complete item by `<C-n>` and `<C-p>`
+
+A: Some completion item requires insert position after current cursor position
+which is invalid for `<C-n>` and `<C-p>` on vim, you can use `<up>` and `<down>`
+key for selection, or use api `coc#_select_confirm()` to select and confirm
+selection which is recommended.
+
 ## License
 
 MIT
