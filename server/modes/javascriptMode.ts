@@ -82,7 +82,7 @@ export function getJavaScriptMode(documentRegions: LanguageModelCache<HTMLDocume
 			return languageId;
 		},
 		async doValidation(document: TextDocument, settings = workspace.settings): Promise<Diagnostic[]> {
-			host.getCompilationSettings()['experimentalDecorators'] = settings && settings.javascript && settings.javascript.implicitProjectConfig.experimentalDecorators;
+			host.getCompilationSettings()['experimentalDecorators'] = settings && settings.javascript && settings.javascript.implicitProjectConfig && settings.javascript.implicitProjectConfig.experimentalDecorators;
 			const jsDocument = jsDocuments.get(document);
 			const languageService = await host.getLanguageService(jsDocument);
 			const syntaxDiagnostics: ts.Diagnostic[] = languageService.getSyntacticDiagnostics(jsDocument.uri);

@@ -55,6 +55,7 @@ export function activateAutoInsertion(provider: (kind: 'autoQuote' | 'autoClose'
 
   function doAutoInsert(kind: 'autoQuote' | 'autoClose', document: Document, position: Position, character: string) {
     const changedtick = document.changedtick
+      ;(document as any).patchChange(true)
     timeout = setTimeout(() => {
       provider(kind, document.textDocument, position).then(text => {
         if (text && isEnabled[kind]) {
