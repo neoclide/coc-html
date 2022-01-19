@@ -102,7 +102,8 @@ function realActivate(context: ExtensionContext, filetypes: string[]) {
       }
       return client.sendRequest(AutoInsertRequest.type, param)
     }
-    activateAutoInsertion(insertRequestor, { html: true, handlebars: true }, context.subscriptions)
+    const autoInsertionSupportedLanguages: { [id: string]: boolean } = Object.assign({}, ...filetypes.map((id) => ({ [id]: true })));
+    activateAutoInsertion(insertRequestor, autoInsertionSupportedLanguages, context.subscriptions)
 
     if (typeof languages.registerDocumentSemanticTokensProvider === 'function') {
       client.sendRequest(SemanticTokenLegendRequest.type).then(legend => {
