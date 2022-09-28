@@ -47,20 +47,16 @@ namespace AutoInsertRequest {
 function realActivate(context: ExtensionContext, filetypes: string[]) {
   let { subscriptions } = context
   const config = workspace.getConfiguration().get<any>('html', {}) as any
-  const file = context.asAbsolutePath('lib/server.js')
+  const serverModule = context.asAbsolutePath('lib/server.js')
   const selector: DocumentSelector = filetypes.map(id => {
     return { language: id }
   })
   const embeddedLanguages = { css: true, javascript: true }
+  const debugOptions = { execArgv: ['--nolazy', '--inspect=' + (8000 + Math.round(Math.random() * 999))] }
 
   let serverOptions: ServerOptions = {
-    module: file,
-    args: ['--node-ipc'],
-    transport: TransportKind.ipc,
-    options: {
-      cwd: workspace.root,
-      execArgv: config.execArgv || []
-    }
+    run: { module: serverModule, transport: TransportKind.ipc, options: { execArgv: config.execArgv || [] }},
+    debug: { module: serverModule, transport: TransportKind.ipc, options: debugOptions  }
   }
 
   let clientOptions: LanguageClientOptions = {
