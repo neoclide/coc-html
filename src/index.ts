@@ -81,13 +81,6 @@ function realActivate(context: ExtensionContext, filetypes: string[]) {
     })
     client.onRequest(CustomDataContent.type, customDataSource.getContent)
 
-    context.subscriptions.push(languages.registerSelectionRangeProvider(selector, {
-      async provideSelectionRanges(document, positions: Position[]): Promise<SelectionRange[]> {
-        const textDocument = { uri: document.uri }
-        return await Promise.resolve(client.sendRequest<SelectionRange[]>('$/textDocument/selectionRanges', { textDocument, positions }))
-      }
-    }))
-
     const insertRequestor = (kind: 'autoQuote' | 'autoClose', document: TextDocument, position: Position): Promise<string> => {
       let param: AutoInsertParams = {
         kind,
