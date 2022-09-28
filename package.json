@@ -269,11 +269,13 @@
     "@types/node": "^12.12.0",
     "coc.nvim": "^0.0.81-next.8",
     "esbuild": "^0.14.7",
-    "vscode-css-languageservice": "^5.1.9",
-    "vscode-html-languageservice": "^4.2.1",
-    "vscode-languageserver": "^7.0.0",
     "vscode-languageserver-types": "3.15.1",
-    "vscode-uri": "^3.0.3"
+    "vscode-css-languageservice": "^6.1.1",
+    "vscode-html-languageservice": "^5.0.2",
+    "vscode-languageserver": "^8.1.0-next.1",
+    "vscode-languageserver-textdocument": "^1.0.7",
+    "vscode-nls": "^5.2.0",
+    "vscode-uri": "^3.0.6"
   },
   "dependencies": {
     "typescript": "^4.3"
