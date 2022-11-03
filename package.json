@@ -24,10 +24,6 @@
       "type": "object",
       "title": "HTML",
       "properties": {
-        "html.enable": {
-          "type": "boolean",
-          "default": true
-        },
         "html.execArgv": {
           "type": "array",
           "default": [],
@@ -129,12 +125,6 @@
           "default": false,
           "markdownDescription": "Format and indent `{{#foo}}` and `{{/foo}}`"
         },
-        "html.format.endWithNewline": {
-          "type": "boolean",
-          "scope": "resource",
-          "default": false,
-          "description": "End with a newline"
-        },
         "html.format.extraLiners": {
           "type": [
             "string",
@@ -207,12 +197,6 @@
           "default": true,
           "description": "Configures if the built-in HTML language support validates embedded styles"
         },
-        "html.validate.html": {
-          "type": "boolean",
-          "scope": "resource",
-          "default": true,
-          "description": "Configures if the built-in HTML language support validates HTML"
-        },
         "html.autoClosingTags": {
           "type": "boolean",
           "default": true,
@@ -269,11 +253,12 @@
     "@types/node": "^12.12.0",
     "coc.nvim": "^0.0.81-next.8",
     "esbuild": "^0.14.7",
-    "vscode-languageserver-types": "3.15.1",
     "vscode-css-languageservice": "^6.1.1",
     "vscode-html-languageservice": "^5.0.2",
     "vscode-languageserver": "^8.1.0-next.1",
     "vscode-languageserver-textdocument": "^1.0.7",
+    "vscode-languageserver-types": "3.15.1",
+    "vscode-languageserver-protocol": "^3.17.2",
     "vscode-nls": "^5.2.0",
     "vscode-uri": "^3.0.6"
   },

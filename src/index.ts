@@ -1,7 +1,11 @@
-import { DocumentRangeSemanticTokensProvider, DocumentSelector, DocumentSemanticTokensProvider, ExtensionContext, LanguageClient, LanguageClientOptions, languages, NotificationType, Range as LspRange, RequestType, RequestType0, ServerOptions, services, TextDocument, TextDocumentIdentifier, TransportKind, workspace } from 'coc.nvim'
-import { Position, SelectionRange } from 'vscode-languageserver-types'
+import { CancellationToken, Disposable, DocumentRangeSemanticTokensProvider, DocumentSelector, DocumentSemanticTokensProvider, ExtensionContext, FormattingOptions, LanguageClient, LanguageClientOptions, languages, NotificationType, ProviderResult, Range as LspRange, Range, RequestType, RequestType0, ServerOptions, services, TextDocument, TextDocumentIdentifier, TextEdit, TransportKind, workspace } from 'coc.nvim'
+import { TextDecoder } from 'util'
+import { DocumentRangeFormattingRequest } from 'vscode-languageserver-protocol'
+import { Position } from 'vscode-languageserver-types'
 import { activateAutoInsertion } from './autoInsertion'
 import { getCustomDataSource } from './customData'
+import { getNodeFileFS } from './nodeFs'
+import { Runtime, serveFileSystemRequests } from './requests'
 
 // experimental: semantic tokens
 interface SemanticTokenParams {
@@ -44,19 +48,35 @@ namespace AutoInsertRequest {
   export const type: RequestType<AutoInsertParams, string, any> = new RequestType('html/autoInsert')
 }
 
-function realActivate(context: ExtensionContext, filetypes: string[]) {
+namespace SettingIds {
+  export const linkedEditing = 'editor.linkedEditing'
+  export const formatEnable = 'html.format.enable'
+}
+
+async function realActivate(context: ExtensionContext, filetypes: string[]): Promise<void> {
   let { subscriptions } = context
   const config = workspace.getConfiguration().get<any>('html', {}) as any
   const serverModule = context.asAbsolutePath('lib/server.js')
   const selector: DocumentSelector = filetypes.map(id => {
     return { language: id }
   })
+
+  const timer = {
+    setTimeout(callback: (...args: any[]) => void, ms: number, ...args: any[]): Disposable {
+      const handle = setTimeout(callback, ms, ...args)
+      return { dispose: () => clearTimeout(handle) }
+    }
+  }
+  const runtime: Runtime = { fileFs: getNodeFileFS(), TextDecoder, timer }
+
   const embeddedLanguages = { css: true, javascript: true }
+  let rangeFormatting: Disposable | undefined = undefined
+
   const debugOptions = { execArgv: ['--nolazy', '--inspect=' + (8000 + Math.round(Math.random() * 999))] }
 
   let serverOptions: ServerOptions = {
-    run: { module: serverModule, transport: TransportKind.ipc, options: { execArgv: config.execArgv || [] }},
-    debug: { module: serverModule, transport: TransportKind.ipc, options: debugOptions  }
+    run: { module: serverModule, transport: TransportKind.ipc, options: { execArgv: config.execArgv || [] } },
+    debug: { module: serverModule, transport: TransportKind.ipc, options: debugOptions }
   }
 
   let clientOptions: LanguageClientOptions = {
@@ -67,14 +87,42 @@ function realActivate(context: ExtensionContext, filetypes: string[]) {
     outputChannelName: 'html',
     initializationOptions: {
       embeddedLanguages,
-      handledSchemas: ['file']
+      handledSchemas: ['file'],
+      provideFormatter: false, // tell the server to not provide formatting capability and ignore the `html.format.enable` setting.
+      customCapabilities: { rangeFormatting: { editLimit: 10000 } }
     }
   }
 
   let client = new LanguageClient('html', 'HTML language server', serverOptions, clientOptions)
-  client.onReady().then(() => {
-    const customDataSource = getCustomDataSource(context.subscriptions)
+  await client.start()
 
+  function updateFormatterRegistration() {
+    const formatEnabled = workspace.getConfiguration().get(SettingIds.formatEnable)
+    if (!formatEnabled && rangeFormatting) {
+      rangeFormatting.dispose()
+      rangeFormatting = undefined
+    } else if (formatEnabled && !rangeFormatting) {
+      rangeFormatting = languages.registerDocumentRangeFormatProvider(filetypes, {
+        provideDocumentRangeFormattingEdits(document: TextDocument, range: Range, options: FormattingOptions, token: CancellationToken): ProviderResult<TextEdit[]> {
+          const params = { textDocument: { uri: document.uri }, range, options }
+          return client.sendRequest(DocumentRangeFormattingRequest.type as any, params, token).catch((error) => {
+              client.handleFailedRequest(DocumentRangeFormattingRequest.type as any, undefined, error, [])
+              return Promise.resolve([]) as any
+            }
+          ) as Promise<TextEdit[]>
+        }
+      })
+    }
+  }
+
+  subscriptions.push(serveFileSystemRequests(client, runtime))
+  client.onReady().then(() => {
+    // manually register / deregister format provider based on the `html.format.enable` setting avoiding issues with late registration. See #71652.
+    updateFormatterRegistration()
+    subscriptions.push({ dispose: () => rangeFormatting && rangeFormatting.dispose() })
+    subscriptions.push(workspace.onDidChangeConfiguration(e => e.affectsConfiguration(SettingIds.formatEnable) && updateFormatterRegistration()))
+
+    const customDataSource = getCustomDataSource(context.subscriptions)
     client.sendNotification(CustomDataChangedNotification.type, customDataSource.uris)
     customDataSource.onDidChange(() => {
       client.sendNotification(CustomDataChangedNotification.type, customDataSource.uris)
@@ -91,7 +139,7 @@ function realActivate(context: ExtensionContext, filetypes: string[]) {
       }
       return client.sendRequest(AutoInsertRequest.type, param)
     }
-    const autoInsertionSupportedLanguages: { [id: string]: boolean } = Object.assign({}, ...filetypes.map((id) => ({ [id]: true })));
+    const autoInsertionSupportedLanguages: { [id: string]: boolean } = Object.assign({}, ...filetypes.map((id) => ({ [id]: true })))
     activateAutoInsertion(insertRequestor, autoInsertionSupportedLanguages, context.subscriptions)
 
     if (typeof languages.registerDocumentSemanticTokensProvider === 'function') {
@@ -135,8 +183,6 @@ function realActivate(context: ExtensionContext, filetypes: string[]) {
 
 export async function activate(context: ExtensionContext): Promise<void> {
   const config = workspace.getConfiguration('html')
-  const enable = config.get<boolean>('enable', true)
-  if (enable === false) return
   const filetypes = config.get<string[]>('filetypes', ['html', 'handlebars', 'htmldjango', 'blade'])
   let activated = false
   for (let doc of workspace.textDocuments) {
