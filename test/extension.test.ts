@@ -150,7 +150,10 @@ describe('coc-html extension', () => {
     try {
       await workspace.nvim.command("call feedkeys('i<ht', 't')")
       await waitForLine('<ht')
-      await document.synchronize()
+      await waitUntil(
+        () => document.getline(0, false) === '<ht',
+        'HTML document did not synchronize typed text'
+      )
       await commands.executeCommand('editor.action.triggerSuggest')
       await waitUntil(async () => {
         if (await workspace.nvim.call('coc#pum#visible', []) !== 1) return false
