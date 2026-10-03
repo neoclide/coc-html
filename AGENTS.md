@@ -46,3 +46,11 @@ duplicated here.
   coc.nvim integration with a `vscode` runtime dependency.
 - Integration tests use coc-test through the scripts in `package.json`; run
   both the Vim and Neovim lanes for editor-facing changes.
+
+## Authorized maintenance branch delivery
+
+After the applicable tests pass and the final diff is confirmed to contain only
+the requested task changes, commit and push the verified remote work branch
+without asking for confirmation again. Preserve unrelated local work. Never
+force push. This does not authorize merging into the default branch, publishing
+to npm, or changing credentials or repository permissions.
