@@ -109,6 +109,20 @@ describe('coc-html extension', () => {
     assert.deepEqual(report.items, [])
   })
 
+  it('serves embedded CSS completion from the bundled ESM language service', async () => {
+    const text = '<style>.a { colo }</style>'
+    const document = await openHtml('css-completion.html', text)
+    const client = await getHtmlClient()
+    const result = await client.sendRequest<{ items: Array<{ label: string }> }>(
+      'textDocument/completion',
+      {
+        textDocument: { uri: document.uri },
+        position: { line: 0, character: text.indexOf('colo') + 4 }
+      }
+    )
+    assert.ok(result.items.some(item => item.label === 'color'))
+  })
+
   it('returns JSDoc summaries and tags from script hovers', async () => {
     const document = await openHtml('hover.html', [
       '<script>',
@@ -134,7 +148,7 @@ describe('coc-html extension', () => {
     await getHtmlClient()
 
     try {
-      await workspace.nvim.call('feedkeys', ['i<ht', 't'])
+      await workspace.nvim.command("call feedkeys('i<ht', 't')")
       await waitForLine('<ht')
       await document.synchronize()
       await commands.executeCommand('editor.action.triggerSuggest')
@@ -154,7 +168,7 @@ describe('coc-html extension', () => {
         'HTML completion popup did not close after confirmation'
       )
       await waitForLine('<html')
-      await workspace.nvim.call('feedkeys', ['>', 't'])
+      await workspace.nvim.command("call feedkeys('>', 't')")
       await waitForLine('<html></html>')
       assert.equal((await workspace.nvim.call('getline', [1]) as string).startsWith('<<'), false)
     } finally {
