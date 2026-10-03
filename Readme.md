@@ -71,6 +71,20 @@ which is invalid for `<C-n>` and `<C-p>` on vim, you can use `<up>` and `<down>`
 key for selection, or use api `coc#_select_confirm()` to select and confirm
 selection which is recommended.
 
+## Development
+
+Use Node.js 22.15 or newer and npm 11.9.0. Install dependencies from the
+committed npm lockfile, then build and validate:
+
+```sh
+npm ci
+npm run build
+npm run lint
+npm test
+```
+
+The integration tests run both Neovim and Vim; both editors must be installed.
+
 ## License
 
 MIT

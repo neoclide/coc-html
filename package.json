@@ -256,10 +256,10 @@
     "url": "git+https://github.com/neoclide/coc-html.git"
   },
   "devDependencies": {
-    "@types/node": "^22.20",
+    "@types/node": "^20.19.43",
     "coc-test": "^0.2.0",
-    "coc.nvim": "^0.0.83-next.26",
-    "esbuild": "^0.28.0",
+    "coc.nvim": "^0.0.83-next.25",
+    "esbuild": "^0.28.2",
     "vscode-css-languageservice": "7.0.0-next.2",
     "vscode-html-languageservice": "6.0.0-next.2",
     "vscode-languageserver": "^10.1.1",
@@ -270,12 +270,13 @@
     "vscode-uri": "^3.2.0"
   },
   "dependencies": {
-    "typescript": "^6.0.3"
+    "typescript": "6.0.3"
   },
   "allowScripts": {
     "esbuild@0.28.2": true
   },
   "coc-test": {
     "entryFile": "src/index.ts"
-  }
+  },
+  "packageManager": "npm@11.9.0"
 }
