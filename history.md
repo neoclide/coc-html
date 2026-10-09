@@ -1,3 +1,15 @@
+## 1.9.1
+
+- ci: add daily automated release workflow (e8bb2cc)
+- docs: remove upstream sync ledger (1f1450a)
+- chore: standardize npm and shared dependency versions (#65) (bf3e52f)
+- Merge pull request #64 from neoclide/codex/upstream-sync-20261003 (b056e89)
+- chore: sync documentation branch with merged HTML changes (d946aed)
+- Update coc-html (b4ccf68)
+- feat: sync upstream HTML and CSS language services (#63) (21bbc07)
+- docs: clarify local upstream baseline provenance (eb1ae3d)
+- feat: sync upstream HTML and CSS language services (7e585d6)
+
 ## 1.9.0
 
 - Sync the HTML and embedded CSS language services with VS Code's September 2026 versions while retaining the Coc server bundle and settings.
