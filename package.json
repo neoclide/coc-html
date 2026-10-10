@@ -257,7 +257,7 @@
   },
   "devDependencies": {
     "@types/node": "^20.19.43",
-    "coc-test": "^0.2.0",
+    "coc-test": "^0.2.2",
     "coc.nvim": "^0.0.83-next.25",
     "esbuild": "^0.28.2",
     "vscode-css-languageservice": "7.0.0-next.2",
