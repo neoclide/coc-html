@@ -1,3 +1,8 @@
+## 1.9.2
+
+- fix: update coc-test for authenticated release downloads (#66) (e13cf24)
+- ci: not download coc.nvim (4be348c)
+
 ## 1.9.1
 
 - ci: add daily automated release workflow (e8bb2cc)
